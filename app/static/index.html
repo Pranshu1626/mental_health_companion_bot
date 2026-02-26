@@ -1,330 +1,272 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Seren – Night Companion</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Breathe · Chat</title>
   <style>
-    :root {
-      --bg:          #0f0d1a;
-      --surface:     rgba(20,18,40,0.85);
-      --text:        #e0d9ff;
-      --text-light:  #a099c2;
-      --accent:      #7c3aed;
-      --accent-glow: #a78bfa66;
-      --bot:         #1e1635;
-      --user:        #2a1e40;
-      --highlight:   #f59e0b;
-      --input-bg:    rgba(35,30,65,0.6);
-      --input-border: rgba(124,58,237,0.22);
-      --input-glow:  rgba(167,139,250,0.18);
-      --radius-xl:   9999px;   /* ultra-round pill shape */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-
-    * { margin:0; padding:0; box-sizing:border-box; }
 
     body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: linear-gradient(135deg, #0f0d1a 0%, #1a1433 100%);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: hsl(210, 40%, 96%);
+      height: 100dvh;
+      display: grid;
+      place-items: center;
+      color: #1f2937;
     }
 
-    header {
-      padding: 24px 28px;
-      background: linear-gradient(135deg, #1e1433, #0f0d1a);
-      text-align: center;
-      box-shadow: 0 6px 24px rgba(30,20,80,0.35);
-    }
-
-    h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: 2.4rem;
-      font-weight: 600;
-      color: #c4b5fd;
-      letter-spacing: -0.8px;
-      text-shadow: 0 2px 12px rgba(124,58,237,0.3);
-    }
-
-    .tagline {
-      font-size: 1rem;
-      color: var(--text-light);
-      margin-top: 6px;
-      opacity: 0.9;
-    }
-
-    .disclaimer {
-      background: rgba(30,20,50,0.6);
-      color: #d1c4ff;
-      padding: 14px 24px;
-      font-size: 0.85rem;
-      line-height: 1.5;
-      border-bottom: 1px solid rgba(124,58,237,0.15);
-      text-align: center;
-    }
-
-    .disclaimer strong { color: var(--highlight); }
-
-    #chat-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      max-width: 860px;
-      margin: 0 auto;
+    .chat-container {
       width: 100%;
+      max-width: 420px;
+      height: 100dvh;
+      background: white;
+      border-radius: 0;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.12);
     }
 
-    #chat {
+    .header {
+      padding: 16px 20px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      text-align: center;
+      font-weight: 500;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+    }
+
+    .messages {
       flex: 1;
-      padding: 32px 28px;
+      padding: 20px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
+      background: hsl(210, 40%, 98%);
     }
 
     .message {
-      max-width: 78%;
-      padding: 16px 22px;
-      border-radius: 20px;
-      line-height: 1.55;
-      font-size: 1.05rem;
-      animation: messageAppear 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 12px 40px rgba(30,20,80,0.4);
-      backdrop-filter: blur(8px);
+      max-width: 82%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      line-height: 1.45;
+      font-size: 15px;
     }
 
     .user {
       align-self: flex-end;
-      background: var(--user);
-      color: #e9e1ff;
-      border-bottom-right-radius: 10px;
-      border: 1px solid rgba(124,58,237,0.18);
+      background: #6366f1;
+      color: white;
+      border-bottom-right-radius: 4px;
     }
 
     .bot {
       align-self: flex-start;
-      background: var(--bot);
-      color: var(--text);
-      border-bottom-left-radius: 10px;
-      border: 1px solid rgba(124,58,237,0.18);
+      background: white;
+      color: #1f2937;
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
     .emotion-tag {
-      font-size: 0.82rem;
-      opacity: 0.8;
-      margin-top: 8px;
+      font-size: 13px;
+      opacity: 0.7;
+      margin-top: 6px;
       display: block;
       font-style: italic;
-      color: #c4b5fd;
+      color: #6366f1;
+      font-weight: 500;
+    }
+
+    .input-area {
+      padding: 16px 20px;
+      background: white;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      gap: 12px;
+    }
+
+    textarea {
+      flex: 1;
+      resize: none;
+      border: 1px solid #d1d5db;
+      border-radius: 24px;
+      padding: 12px 16px;
+      font-size: 15px;
+      line-height: 1.4;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    button {
+      width: 48px;
+      height: 48px;
+      border: none;
+      background: #6366f1;
+      color: white;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: grid;
+      place-items: center;
+    }
+
+    button:hover:not(:disabled) {
+      background: #4f46e5;
+      transform: scale(1.08);
+    }
+
+    button:disabled {
+      background: #d1d5db;
+      cursor: not-allowed;
     }
 
     .typing {
       align-self: flex-start;
-      background: rgba(30,22,50,0.7);
-      padding: 16px 22px;
-      border-radius: 20px;
-      max-width: 160px;
-      color: var(--text-light);
-      font-style: italic;
-      backdrop-filter: blur(10px);
+      background: white;
+      padding: 12px 16px;
+      border-radius: 18px;
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      color: #9ca3af;
+      font-size: 13px;
+      display: none;
     }
 
-    .dots::after {
-      content: '…';
-      animation: dots 1.8s steps(4, end) infinite;
+    .typing.show {
+      display: inline-block;
     }
 
-    @keyframes dots {
-      0%, 25%  { content: '.'; }
-      50%      { content: '..'; }
-      75%      { content: '...'; }
-      100%     { content: '.'; }
-    }
-
-    @keyframes messageAppear {
-      from { opacity: 0; transform: translateY(24px) scale(0.95); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    .input-area {
-      padding: 24px 28px;
-      background: var(--glass);
-      border-top: 1px solid rgba(124,58,237,0.2);
-      backdrop-filter: blur(16px);
-      box-shadow: 0 -8px 32px rgba(30,20,80,0.35);
-    }
-
-    .input-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      background: var(--input-bg);
-      border-radius: var(--radius-xl);
-      padding: 10px 14px 10px 24px;
-      border: 1px solid var(--input-border);
-      box-shadow: 
-        inset 0 2px 12px rgba(0,0,0,0.4),
-        0 0 0 1px rgba(124,58,237,0.08);
-      transition: all 0.25s ease;
-    }
-
-    #msg {
-      flex: 1;
-      background: transparent;
-      border: none;
-      font-size: 1.08rem;
-      color: var(--text);
-      outline: none;
-      padding: 14px 0;
-    }
-
-    #msg::placeholder {
-      color: #b0a8d8;
-      opacity: 0.65;
-    }
-
-    .input-wrapper:focus-within {
-      border-color: rgba(167,139,250,0.45);
-      box-shadow: 
-        inset 0 2px 16px rgba(0,0,0,0.45),
-        0 0 0 3px var(--input-glow),
-        0 0 20px var(--accent-glow);
-      background: rgba(40,35,70,0.65);
-    }
-
-    #sendBtn {
-      width: 52px;
-      height: 52px;
-      background: linear-gradient(135deg, var(--accent) 0%, #9f7aea 100%);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      font-size: 1.5rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-      box-shadow: 0 6px 24px var(--accent-glow);
-    }
-
-    #sendBtn:hover:not(:disabled) {
-      transform: scale(1.12) rotate(8deg);
-      box-shadow: 0 10px 32px rgba(124,58,237,0.6);
-    }
-
-    #sendBtn:disabled {
-      background: #6b4ca8;
-      cursor: not-allowed;
-    }
-
-    @media (max-width: 480px) {
-      h1 { font-size: 2rem; }
-      #chat { padding: 24px 20px; }
-      .message { max-width: 84%; }
+    @media (max-width: 500px) {
+      .chat-container {
+        border-radius: 0;
+        box-shadow: none;
+      }
     }
   </style>
 </head>
+
 <body>
 
-<header>
-  <h1>Seren Night</h1>
-  <div class="tagline">your quiet space after dark</div>
-</header>
+  <div class="chat-container">
+    <div class="header">Breathe · I'm here to listen</div>
 
-<div id="chat-container">
-  <div id="chat"></div>
+    <div class="messages" id="messages">
+      <!-- Messages appear here -->
+    </div>
 
-  <div class="input-area">
-    <div class="input-wrapper">
-      <input id="msg" placeholder="The night is listening… share what's heavy" autocomplete="off" />
-      <button id="sendBtn">↗</button>
+    <div class="input-area">
+      <textarea id="input" rows="1" placeholder="How are you feeling right now...?" maxlength="400"></textarea>
+      <button id="send" disabled>→</button>
     </div>
   </div>
-</div>
 
-<script>
-// ────────────────────────────────────────────────
-// (keeping the same JavaScript logic as before)
-// ────────────────────────────────────────────────
+  <script>
+    const messages = document.getElementById("messages");
+    const input = document.getElementById("input");
+    const sendBtn = document.getElementById("send");
 
-const chat = document.getElementById("chat");
-const input = document.getElementById("msg");
-const sendBtn = document.getElementById("sendBtn");
+    function addMessage(content, who = "user", emotion = "") {
+      const div = document.createElement("div");
+      div.className = `message ${who}`;
 
-function addMessage(content, type = "bot", emotion = "") {
-  const div = document.createElement("div");
-  div.className = `message ${type}`;
-  div.innerHTML = `<div>${content.replace(/\n/g, '<br>')}</div>`;
-  if (emotion) {
-    const em = document.createElement("span");
-    em.className = "emotion-tag";
-    em.textContent = emotion;
-    div.appendChild(em);
-  }
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-}
+      // Handle newlines and basic HTML
+      const formattedContent = content.replace(/\n/g, '<br>');
+      div.innerHTML = `<div>${formattedContent}</div>`;
 
-function showTyping() {
-  const typing = document.createElement("div");
-  typing.className = "message bot typing";
-  typing.innerHTML = "Reflecting<span class='dots'></span>";
-  chat.appendChild(typing);
-  chat.scrollTop = chat.scrollHeight;
-  return typing;
-}
+      // Add emotion tag if present
+      if (emotion) {
+        const em = document.createElement("span");
+        em.className = "emotion-tag";
+        em.textContent = emotion;
+        div.appendChild(em);
+      }
 
-async function send() {
-  const text = input.value.trim();
-  if (!text) return;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    }
 
-  addMessage(text, "user");
-  input.value = "";
-  sendBtn.disabled = true;
+    function showTyping() {
+      let typing = document.querySelector(".typing");
+      if (!typing) {
+        typing = document.createElement("div");
+        typing.className = "typing";
+        typing.textContent = "thinking...";
+        messages.appendChild(typing);
+      }
+      typing.classList.add("show");
+      messages.scrollTop = messages.scrollHeight;
+    }
 
-  const typingEl = showTyping();
+    function hideTyping() {
+      const typing = document.querySelector(".typing");
+      if (typing) typing.classList.remove("show");
+    }
 
-  try {
-    const res = await fetch(
-      "http://127.0.0.1:8000/chat?message=" + encodeURIComponent(text),
-      { method: "POST" }
-    );
-    if (!res.ok) throw new Error();
-    const data = await res.json();
-    typingEl.remove();
-    addMessage(data.reply, "bot", data.emotion || "");
-  } catch {
-    typingEl.remove();
-    addMessage("Connection flickering… try again soon.", "bot");
-  } finally {
-    sendBtn.disabled = false;
+    async function sendMessage() {
+      const text = input.value.trim();
+      if (!text) return;
+
+      addMessage(text, "user");
+      input.value = "";
+      sendBtn.disabled = true;
+
+      showTyping();
+
+      try {
+        const res = await fetch(
+          "http://127.0.0.1:8000/chat?message=" + encodeURIComponent(text),
+          { method: "POST" }
+        );
+
+        if (!res.ok) throw new Error("Server error");
+
+        const data = await res.json();
+        hideTyping();
+
+        addMessage(data.reply, "bot", data.emotion || "");
+
+      } catch (error) {
+        hideTyping();
+        addMessage("Sorry, I'm having trouble connecting right now. Please check if the server is running on port 8000 and try again.", "bot");
+      } finally {
+        sendBtn.disabled = false;
+        input.focus();
+      }
+    }
+
+    // Enable/disable send button
+    input.addEventListener("input", () => {
+      sendBtn.disabled = input.value.trim().length === 0;
+    });
+
+    // Send on Enter (without Shift)
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        if (!sendBtn.disabled) sendMessage();
+      }
+    });
+
+    sendBtn.addEventListener("click", sendMessage);
+
+    // Auto focus
     input.focus();
-  }
-}
-
-sendBtn.onclick = send;
-
-input.addEventListener("keypress", e => {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-    send();
-  }
-});
-
-window.addEventListener("load", () => {
-  addMessage("The stars are quiet tonight.\nI'm here in the dark with you.\nWhat thoughts are keeping the night awake?", "bot");
-  input.focus();
-});
-</script>
+  </script>
 
 </body>
+
 </html>
