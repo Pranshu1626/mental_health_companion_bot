@@ -228,10 +228,8 @@
       showTyping();
 
       try {
-        const API = import.meta.env.VITE_API_URL;
-
         const res = await fetch(
-          `${API}/chat?message=${encodeURIComponent(text)}`,
+          "http://127.0.0.1:8000/chat?message=" + encodeURIComponent(text),
           { method: "POST" }
         );
 
