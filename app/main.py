@@ -3,17 +3,11 @@ load_dotenv()
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-import random
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+
 from src.reply_engine import generate_final_reply
-
 from src.recommendations import get_recommendations
-
 from src.predict import predict_emotion
-# from app.responses import responses
-from app.responses import generate_reply
-
 
 
 app = FastAPI()
