@@ -166,7 +166,6 @@
     <div class="header">Breathe · I'm here to listen</div>
 
     <div class="messages" id="messages">
-      <!-- Messages appear here -->
     </div>
 
     <div class="input-area">
@@ -184,11 +183,11 @@
       const div = document.createElement("div");
       div.className = `message ${who}`;
 
-      // Handle newlines and basic HTML
+      //Handle newlines and basic HTML
       const formattedContent = content.replace(/\n/g, '<br>');
       div.innerHTML = `<div>${formattedContent}</div>`;
 
-      // Add emotion tag if present
+      //Add emotion tag if present
       if (emotion) {
         const em = document.createElement("span");
         em.className = "emotion-tag";
@@ -228,11 +227,12 @@
       showTyping();
 
       try {
-        const res = await fetch(
-          "http://127.0.0.1:8000/chat?message=" + encodeURIComponent(text),
-          { method: "POST" }
-        );
-
+        const apiUrl = window.location.origin + '/api/chat';  //Uses Render URL + /api/chat
+        const res = await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text })
+        });
         if (!res.ok) throw new Error("Server error");
 
         const data = await res.json();
@@ -249,12 +249,12 @@
       }
     }
 
-    // Enable/disable send button
+    //Enable/disable send button
     input.addEventListener("input", () => {
       sendBtn.disabled = input.value.trim().length === 0;
     });
 
-    // Send on Enter (without Shift)
+    //Send on Enter
     input.addEventListener("keydown", e => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
@@ -264,7 +264,7 @@
 
     sendBtn.addEventListener("click", sendMessage);
 
-    // Auto focus
+    //focus
     input.focus();
   </script>
 

@@ -6,7 +6,7 @@ client = OpenAI(
     base_url="https://openrouter.ai/api/v1"
 )
 
-MODEL = "mistralai/mistral-7b-instruct"  # free & good
+MODEL = "mistralai/mistral-7b-instruct"  
 
 
 def generate_llm_reply(message, emotion):

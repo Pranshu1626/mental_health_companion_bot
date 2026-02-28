@@ -25,7 +25,7 @@ def merge_datasets():
 
     print("Merged dataset saved:", merged.shape)
     
-    emotion_cols = merged.columns[9:]  # GoEmotions emotion columns start after metadata
+    emotion_cols = merged.columns[9:]
 
     merged["label"] = merged[emotion_cols].idxmax(axis=1)
 
