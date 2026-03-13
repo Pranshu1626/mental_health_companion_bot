@@ -57,10 +57,14 @@ mental_health_bot/
 │       └── index.html
 │
 ├── src/
+│   ├── _init_.py  #this should be empty
 │   ├── train.py
 │   ├── predict.py
 │   ├── prepare_data.py
-│   └── utils.py
+│   ├── utils.py
+│   ├── reply_engine.py
+│   ├── recommendations.py
+│   └── llm_service.py
 │
 ├── data/
 │   ├── raw/
@@ -172,3 +176,4 @@ It is intended for supportive conversation and educational purposes only.
 Pranshu Patel
 
 ---
+
