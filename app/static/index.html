@@ -6,7 +6,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Breathe · Chat</title>
   <link rel="icon" type="image/png" href="/static/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary: #a78bfa;
+      --primary-hover: #c4b5fd;
+      --bg-body: #0f0f0f;
+      --bg-chat: #1a1a1a;
+      --bg-input: #252525;
+      --text-primary: #f5f5f5;
+      --text-secondary: #a3a3a3;
+      --text-muted: #525252;
+      --user-bubble: linear-gradient(135deg, #a78bfa 0%, #c4b5fd 100%);
+      --bot-bubble: #262626;
+      --border: #333333;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
+      --radius-sm: 12px;
+      --radius-md: 20px;
+      --radius-lg: 24px;
+      --radius-full: 9999px;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -14,148 +38,304 @@
     }
 
     body {
-      font-family: system-ui, -apple-system, sans-serif;
-      background: hsl(210, 40%, 96%);
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-body);
       height: 100dvh;
-      display: grid;
-      place-items: center;
-      color: #1f2937;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-primary);
+      line-height: 1.5;
     }
 
     .chat-container {
       width: 100%;
-      max-width: 420px;
       height: 100dvh;
-      background: white;
-      border-radius: 0;
-      overflow: hidden;
+      max-height: none;
+      background: var(--bg-chat);
       display: flex;
       flex-direction: column;
-      box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.12);
+      position: relative;
+      box-shadow: none;
     }
 
     .header {
-      padding: 16px 20px;
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      padding: 20px 24px;
+      background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid #333;
+    }
+
+    .header-avatar {
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .header-avatar svg {
+      width: 20px;
+      height: 20px;
+      fill: white;
+    }
+
+    .header-text {
       color: white;
-      text-align: center;
-      font-weight: 500;
-      font-size: 1.1rem;
-      letter-spacing: 0.5px;
+    }
+
+    .header-title {
+      font-weight: 600;
+      font-size: 1rem;
+      letter-spacing: -0.2px;
+    }
+
+    .header-subtitle {
+      font-size: 0.75rem;
+      opacity: 0.85;
+      font-weight: 400;
     }
 
     .messages {
       flex: 1;
-      padding: 20px;
+      padding: 20px 24px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 16px;
-      background: hsl(210, 40%, 98%);
+      scroll-behavior: smooth;
+    }
+
+    .messages::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .messages::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .messages::-webkit-scrollbar-thumb {
+      background: #404040;
+      border-radius: var(--radius-full);
     }
 
     .message {
-      max-width: 82%;
-      padding: 12px 16px;
-      border-radius: 18px;
-      line-height: 1.45;
-      font-size: 15px;
+      max-width: 85%;
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      font-size: 0.9375rem;
+      line-height: 1.55;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .user {
       align-self: flex-end;
-      background: #6366f1;
+      background: var(--user-bubble);
       color: white;
-      border-bottom-right-radius: 4px;
+      border-bottom-right-radius: 6px;
     }
 
     .bot {
       align-self: flex-start;
-      background: white;
-      color: #1f2937;
-      border-bottom-left-radius: 4px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      background: var(--bot-bubble);
+      color: var(--text-primary);
+      border-bottom-left-radius: 6px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
     }
 
     .emotion-tag {
-      font-size: 13px;
-      opacity: 0.7;
-      margin-top: 6px;
-      display: block;
-      font-style: italic;
-      color: #6366f1;
+      font-size: 0.75rem;
+      color: #c4b5fd;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
       font-weight: 500;
     }
 
+    .emotion-tag::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: #c4b5fd;
+      border-radius: var(--radius-full);
+      opacity: 0.6;
+    }
+
     .input-area {
-      padding: 16px 20px;
-      background: white;
-      border-top: 1px solid #e5e7eb;
+      padding: 16px 20px 20px;
+      background: var(--bg-chat);
+      border-top: 1px solid var(--border);
+    }
+
+    .input-wrapper {
       display: flex;
-      gap: 12px;
+      align-items: flex-end;
+      gap: 10px;
+      background: var(--bg-input);
+      border-radius: var(--radius-full);
+      padding: 6px 6px 6px 18px;
+      transition: box-shadow 0.2s, background 0.2s;
+    }
+
+    .input-wrapper:focus-within {
+      background: var(--bg-chat);
+      box-shadow: 0 0 0 2px var(--primary), var(--shadow-md);
     }
 
     textarea {
       flex: 1;
       resize: none;
-      border: 1px solid #d1d5db;
-      border-radius: 24px;
-      padding: 12px 16px;
-      font-size: 15px;
+      border: none;
+      background: transparent;
+      padding: 10px 0;
+      font-size: 0.9375rem;
+      font-family: inherit;
       line-height: 1.4;
       outline: none;
+      max-height: 100px;
+      color: var(--text-primary);
     }
 
-    textarea:focus {
-      border-color: #6366f1;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    textarea::placeholder {
+      color: var(--text-muted);
     }
 
     button {
-      width: 48px;
-      height: 48px;
+      width: 42px;
+      height: 42px;
       border: none;
-      background: #6366f1;
+      background: var(--primary);
       color: white;
-      border-radius: 50%;
-      font-size: 1.1rem;
+      border-radius: var(--radius-full);
       cursor: pointer;
-      transition: all 0.15s;
-      display: grid;
-      place-items: center;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
 
     button:hover:not(:disabled) {
-      background: #4f46e5;
-      transform: scale(1.08);
+      background: var(--primary-hover);
+      transform: scale(1.05);
+    }
+
+    button:active:not(:disabled) {
+      transform: scale(0.95);
     }
 
     button:disabled {
-      background: #d1d5db;
+      background: var(--border);
+      color: var(--text-muted);
       cursor: not-allowed;
+    }
+
+    button svg {
+      width: 18px;
+      height: 18px;
     }
 
     .typing {
       align-self: flex-start;
-      background: white;
-      padding: 12px 16px;
-      border-radius: 18px;
-      border-bottom-left-radius: 4px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-      color: #9ca3af;
-      font-size: 13px;
+      background: var(--bot-bubble);
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      border-bottom-left-radius: 6px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
       display: none;
     }
 
     .typing.show {
-      display: inline-block;
+      display: flex;
+      gap: 4px;
+      align-items: center;
     }
 
-    @media (max-width: 500px) {
-      .chat-container {
-        border-radius: 0;
-        box-shadow: none;
+    .typing span {
+      width: 8px;
+      height: 8px;
+      background: var(--text-muted);
+      border-radius: var(--radius-full);
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+
+    .typing span:nth-child(1) {
+      animation-delay: -0.32s;
+    }
+
+    .typing span:nth-child(2) {
+      animation-delay: -0.16s;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      80%,
+      100% {
+        transform: scale(0.6);
+        opacity: 0.4;
       }
+
+      40% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .welcome-message {
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .welcome-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #a78bfa 0%, #c4b5fd 100%);
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      box-shadow: 0 4px 20px rgba(167, 139, 250, 0.3);
+    }
+
+    .welcome-icon svg {
+      width: 32px;
+      height: 32px;
+      fill: white;
+    }
+
+    .welcome-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .welcome-text {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      max-width: 260px;
+      margin: 0 auto;
     }
   </style>
 </head>
@@ -163,14 +343,42 @@
 <body>
 
   <div class="chat-container">
-    <div class="header">Breathe · I'm here to listen</div>
+    <div class="header">
+      <div class="header-avatar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+      </div>
+      <div class="header-text">
+        <div class="header-title">Breathe</div>
+        <div class="header-subtitle">I'm here to listen</div>
+      </div>
+    </div>
 
     <div class="messages" id="messages">
+      <div class="welcome-message">
+        <div class="welcome-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+            <path d="M12 16v-4M12 8h.01"></path>
+          </svg>
+        </div>
+        <div class="welcome-title">Welcome</div>
+        <div class="welcome-text">Share what's on your mind. Everything you say stays between us.</div>
+      </div>
     </div>
 
     <div class="input-area">
-      <textarea id="input" rows="1" placeholder="How are you feeling right now...?" maxlength="400"></textarea>
-      <button id="send" disabled>→</button>
+      <div class="input-wrapper">
+        <textarea id="input" rows="1" placeholder="Type your message..." maxlength="400"></textarea>
+        <button id="send" disabled aria-label="Send message">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -179,15 +387,25 @@
     const input = document.getElementById("input");
     const sendBtn = document.getElementById("send");
 
+    // Clear welcome message on first user input
+    let welcomeCleared = false;
+    function clearWelcome() {
+      if (!welcomeCleared) {
+        const welcome = document.querySelector('.welcome-message');
+        if (welcome) welcome.remove();
+        welcomeCleared = true;
+      }
+    }
+
     function addMessage(content, who = "user", emotion = "") {
+      clearWelcome();
+
       const div = document.createElement("div");
       div.className = `message ${who}`;
 
-      //Handle newlines and basic HTML
       const formattedContent = content.replace(/\n/g, '<br>');
       div.innerHTML = `<div>${formattedContent}</div>`;
 
-      //Add emotion tag if present
       if (emotion) {
         const em = document.createElement("span");
         em.className = "emotion-tag";
@@ -204,7 +422,7 @@
       if (!typing) {
         typing = document.createElement("div");
         typing.className = "typing";
-        typing.textContent = "thinking...";
+        typing.innerHTML = '<span></span><span></span><span></span';
         messages.appendChild(typing);
       }
       typing.classList.add("show");
@@ -223,11 +441,12 @@
       addMessage(text, "user");
       input.value = "";
       sendBtn.disabled = true;
+      input.style.height = 'auto';
 
       showTyping();
 
       try {
-        const apiUrl = window.location.origin + '/api/chat';  //Uses Render URL + /api/chat
+        const apiUrl = window.location.origin + '/api/chat';
         const res = await fetch(apiUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -242,19 +461,21 @@
 
       } catch (error) {
         hideTyping();
-        addMessage("Sorry, I'm having trouble connecting right now. Please check if the server is running on port 8000 and try again.", "bot");
+        addMessage("Sorry, I'm having trouble connecting right now. Please try again.", "bot");
       } finally {
         sendBtn.disabled = false;
         input.focus();
       }
     }
 
-    //Enable/disable send button
+    // Auto-resize textarea
     input.addEventListener("input", () => {
       sendBtn.disabled = input.value.trim().length === 0;
+      input.style.height = 'auto';
+      input.style.height = Math.min(input.scrollHeight, 100) + 'px';
     });
 
-    //Send on Enter
+    // Send on Enter
     input.addEventListener("keydown", e => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
@@ -263,8 +484,6 @@
     });
 
     sendBtn.addEventListener("click", sendMessage);
-
-    //focus
     input.focus();
   </script>
 
