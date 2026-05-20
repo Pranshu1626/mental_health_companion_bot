@@ -397,7 +397,8 @@
       }
     }
 
-    function addMessage(content, who = "user", emotion = "") {
+    // function addMessage(content, who = "user", emotion = "") {
+    function addMessage(content, who = "user") {
       clearWelcome();
 
       const div = document.createElement("div");
@@ -406,34 +407,30 @@
       const formattedContent = content.replace(/\n/g, '<br>');
       div.innerHTML = `<div>${formattedContent}</div>`;
 
-      if (emotion) {
-        const em = document.createElement("span");
-        em.className = "emotion-tag";
-        em.textContent = emotion;
-        div.appendChild(em);
-      }
+      // if (emotion) {
+      //   const em = document.createElement("span");
+      //   em.className = "emotion-tag";
+      //   em.textContent = emotion;
+      //   div.appendChild(em);
+      // }
 
       messages.appendChild(div);
       messages.scrollTop = messages.scrollHeight;
     }
 
     function showTyping() {
-      let typing = document.querySelector(".typing");
-      if (!typing) {
-        typing = document.createElement("div");
-        typing.className = "typing";
-        typing.innerHTML = '<span></span><span></span><span></span';
-        messages.appendChild(typing);
-      }
-      typing.classList.add("show");
-      messages.scrollTop = messages.scrollHeight;
+      hideTyping();
+      const typing = document.createElement("div");
+      typing.className = "typing show";
+      typing.id = "typing-bubble";
+      typing.innerHTML = '<span></span><span></span><span></span>';
+      messages.appendChild(typing);
+      typing.scrollIntoView({ behavior: "smooth", block: "end" });
     }
-
     function hideTyping() {
-      const typing = document.querySelector(".typing");
-      if (typing) typing.classList.remove("show");
+      const typing = document.getElementById("typing-bubble");
+      if (typing) typing.remove();
     }
-
     async function sendMessage() {
       const text = input.value.trim();
       if (!text) return;
@@ -457,7 +454,8 @@
         const data = await res.json();
         hideTyping();
 
-        addMessage(data.reply, "bot", data.emotion || "");
+        // addMessage(data.reply, "bot", data.emotion || "");
+        addMessage(data.reply, "bot");
 
       } catch (error) {
         hideTyping();

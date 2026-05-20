@@ -6,11 +6,9 @@ client = OpenAI(
     base_url="https://openrouter.ai/api/v1"
 )
 
-MODEL = "openrouter/owl-alpha"  
+MODEL = "openrouter/owl-alpha"
 
-
-def generate_llm_reply(message, emotion):
-
+def generate_llm_reply(message: str, emotion: str) -> str:
     prompt = f"""
 You are a supportive close friend.
 
