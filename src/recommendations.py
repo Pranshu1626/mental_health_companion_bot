@@ -9,7 +9,7 @@ def get_recommendations(emotion):
 
     return video, image
 
-#Still woring on this
+#Still working on this
 
 VIDEO_RECS = {
     "anxiety": [
