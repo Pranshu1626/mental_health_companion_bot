@@ -105,7 +105,6 @@ mental_health_companion_bot/
 └── Dockerfile
 ```
 
-> Note: In your README previously you had `src/_init_.py` — in Python it should be `src/__init__.py`.
 
 ---
 
