@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MindMate | Mental Health Companion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --lavender: #7C6FCD;
+      --lavender-dark: #6155ad;
+      --lavender-soft: #eeeafd;
+      --mint: #A8D8C8;
+      --mint-soft: #edf8f4;
+      --white: #ffffff;
+      --grey: #f6f7fb;
+      --text: #242435;
+      --muted: #66687a;
+      --yellow: #fff4c7;
+      --yellow-border: #f4d76f;
+      --shadow: 0 18px 45px rgba(72, 67, 117, 0.12);
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(168, 216, 200, 0.35), transparent 34rem),
+        radial-gradient(circle at top right, rgba(124, 111, 205, 0.18), transparent 32rem),
+        var(--white);
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      overflow: hidden;
+    }
+
+    .container {
+      width: min(1120px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(18px);
+      animation: fadeIn 0.8s ease forwards;
+    }
+
+    .delay-1 { animation-delay: 0.12s; }
+    .delay-2 { animation-delay: 0.24s; }
+    .delay-3 { animation-delay: 0.36s; }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.84);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(124, 111, 205, 0.12);
+    }
+
+    .nav-inner {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: 0;
+      color: var(--lavender-dark);
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(145deg, var(--lavender), var(--mint));
+      color: var(--white);
+      box-shadow: 0 10px 24px rgba(124, 111, 205, 0.22);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .nav-links a {
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--lavender);
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 22px;
+      border-radius: 999px;
+      background: var(--lavender);
+      color: var(--white);
+      font-weight: 700;
+      box-shadow: 0 14px 28px rgba(124, 111, 205, 0.24);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      background: var(--lavender-dark);
+      box-shadow: 0 18px 36px rgba(124, 111, 205, 0.3);
+    }
+
+    .hero {
+      min-height: calc(100vh - 78px);
+      display: grid;
+      align-items: center;
+      padding: 78px 0 90px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+      align-items: center;
+      gap: 56px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--mint-soft);
+      color: #3c7565;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .hero h1 {
+      max-width: 720px;
+      font-size: clamp(2.65rem, 7vw, 5.8rem);
+      line-height: 1.02;
+      letter-spacing: 0;
+      color: var(--text);
+    }
+
+    .hero p {
+      max-width: 620px;
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: clamp(1.05rem, 2.4vw, 1.25rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 34px;
+      flex-wrap: wrap;
+    }
+
+    .secondary-note {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .hero-visual {
+      position: relative;
+      min-height: 470px;
+      display: grid;
+      place-items: center;
+    }
+
+    .chat-orbit {
+      position: relative;
+      width: min(100%, 430px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 35% 32%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.2) 28%, transparent 29%),
+        linear-gradient(145deg, rgba(124, 111, 205, 0.25), rgba(168, 216, 200, 0.45));
+      box-shadow: var(--shadow);
+      animation: breathe 5s ease-in-out infinite;
+    }
+
+    .chat-orbit::before,
+    .chat-orbit::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.58);
+      box-shadow: inset 0 0 0 1px rgba(124, 111, 205, 0.12);
+    }
+
+    .chat-orbit::before {
+      width: 118px;
+      height: 118px;
+      left: -18px;
+      bottom: 48px;
+    }
+
+    .chat-orbit::after {
+      width: 74px;
+      height: 74px;
+      right: 34px;
+      top: -12px;
+    }
+
+    .phone-card {
+      position: absolute;
+      width: min(82%, 310px);
+      min-height: 380px;
+      padding: 22px;
+      border-radius: 32px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.82);
+      box-shadow: 0 24px 60px rgba(51, 46, 90, 0.18);
+      backdrop-filter: blur(16px);
+    }
+
+    .phone-top {
+      width: 58px;
+      height: 6px;
+      margin: 0 auto 24px;
+      border-radius: 99px;
+      background: #dcd8f6;
+    }
+
+    .bubble {
+      width: fit-content;
+      max-width: 88%;
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      border-radius: 18px;
+      color: var(--text);
+      font-size: 0.94rem;
+      font-weight: 600;
+    }
+
+    .bubble.user {
+      margin-left: auto;
+      background: var(--lavender);
+      color: var(--white);
+      border-bottom-right-radius: 6px;
+    }
+
+    .bubble.bot {
+      background: var(--mint-soft);
+      border-bottom-left-radius: 6px;
+    }
+
+    .mood-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .mood {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      background: var(--grey);
+      font-size: 1.35rem;
+    }
+
+    .floating-emoji {
+      position: absolute;
+      display: grid;
+      place-items: center;
+      width: 62px;
+      height: 62px;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: 0 16px 35px rgba(72, 67, 117, 0.12);
+      font-size: 1.8rem;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .floating-emoji.one {
+      left: 8%;
+      top: 14%;
+    }
+
+    .floating-emoji.two {
+      right: 6%;
+      bottom: 16%;
+      animation-delay: 1s;
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.025); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    section {
+      padding: 88px 0;
+    }
+
+    .section-heading {
+      max-width: 680px;
+      margin-bottom: 34px;
+    }
+
+    .section-heading h2 {
+      font-size: clamp(2rem, 4vw, 3.1rem);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    .section-heading p {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .features {
+      background: var(--grey);
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      min-height: 230px;
+      padding: 28px;
+      border-radius: var(--radius);
+      background: var(--white);
+      border: 1px solid rgba(124, 111, 205, 0.1);
+      box-shadow: 0 12px 32px rgba(72, 67, 117, 0.08);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow);
+    }
+
+    .feature-icon {
+      width: 58px;
+      height: 58px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 20px;
+      border-radius: 20px;
+      background: var(--lavender-soft);
+      font-size: 1.8rem;
+    }
+
+    .feature-card h3 {
+      margin-bottom: 10px;
+      font-size: 1.15rem;
+      letter-spacing: 0;
+    }
+
+    .feature-card p {
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .steps-wrap {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .step-card {
+      position: relative;
+      min-height: 210px;
+      padding: 30px;
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, var(--white), var(--mint-soft));
+      border: 1px solid rgba(168, 216, 200, 0.55);
+      box-shadow: 0 14px 34px rgba(72, 67, 117, 0.08);
+    }
+
+    .step-number {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 28px;
+      border-radius: 50%;
+      background: var(--lavender);
+      color: var(--white);
+      font-weight: 800;
+      box-shadow: 0 12px 24px rgba(124, 111, 205, 0.22);
+    }
+
+    .step-card h3 {
+      margin-bottom: 10px;
+      font-size: 1.28rem;
+      letter-spacing: 0;
+    }
+
+    .step-card p {
+      color: var(--muted);
+    }
+
+    .step-arrow {
+      position: absolute;
+      right: -22px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--lavender);
+      font-size: 2.25rem;
+      font-weight: 800;
+      z-index: 1;
+    }
+
+    .step-card:last-child .step-arrow {
+      display: none;
+    }
+
+    .disclaimer {
+      padding: 0 0 88px;
+      background: linear-gradient(to bottom, var(--white), var(--grey));
+    }
+
+    .disclaimer-banner {
+      padding: 24px 28px;
+      border-radius: 22px;
+      background: var(--yellow);
+      border: 1px solid var(--yellow-border);
+      color: #67531b;
+      font-weight: 700;
+      box-shadow: 0 14px 32px rgba(116, 91, 22, 0.08);
+    }
+
+    footer {
+      padding: 32px 0;
+      background: #242435;
+      color: rgba(255, 255, 255, 0.82);
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      font-weight: 600;
+    }
+
+    .footer-inner a {
+      color: var(--mint);
+      font-weight: 800;
+    }
+
+    .footer-inner a:hover {
+      color: var(--white);
+    }
+
+    @media (max-width: 920px) {
+      .nav-inner {
+        min-height: 72px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .hero {
+        min-height: auto;
+        padding: 58px 0 76px;
+      }
+
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 42px;
+      }
+
+      .hero-visual {
+        min-height: 410px;
+      }
+
+      .feature-grid,
+      .steps-wrap {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .step-arrow {
+        display: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        width: min(100% - 28px, 1120px);
+      }
+
+      .brand {
+        font-size: 1.08rem;
+      }
+
+      .brand-mark {
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+      }
+
+      .nav-inner .button {
+        min-height: 40px;
+        padding: 0 15px;
+        font-size: 0.9rem;
+      }
+
+      .hero h1 {
+        font-size: clamp(2.45rem, 13vw, 4rem);
+      }
+
+      .hero-actions {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .hero-actions .button {
+        width: 100%;
+      }
+
+      .secondary-note {
+        text-align: center;
+      }
+
+      .hero-visual {
+        min-height: 350px;
+      }
+
+      .chat-orbit {
+        width: min(100%, 330px);
+      }
+
+      .phone-card {
+        min-height: 310px;
+        padding: 18px;
+        border-radius: 26px;
+      }
+
+      .bubble {
+        font-size: 0.84rem;
+      }
+
+      .mood {
+        width: 40px;
+        height: 40px;
+        border-radius: 13px;
+        font-size: 1.1rem;
+      }
+
+      .floating-emoji {
+        width: 50px;
+        height: 50px;
+        border-radius: 18px;
+        font-size: 1.45rem;
+      }
+
+      section {
+        padding: 66px 0;
+      }
+
+      .feature-grid,
+      .steps-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-card,
+      .step-card {
+        min-height: auto;
+      }
+
+      .disclaimer {
+        padding-bottom: 66px;
+      }
+
+      .disclaimer-banner {
+        padding: 20px;
+        font-size: 0.95rem;
+      }
+
+      .footer-inner {
+        justify-content: center;
+        text-align: center;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <nav class="navbar">
+      <div class="container nav-inner">
+        <a class="brand" href="#" aria-label="MindMate home">
+          <span class="brand-mark">M</span>
+          <span>MindMate</span>
+        </a>
+        <div class="nav-links" aria-label="Primary navigation">
+          <a href="#features">Features</a>
+          <a href="#how-it-works">How It Works</a>
+          <a href="#about">About</a>
+        </div>
+        <a class="button" href="/login">Get Started</a>
+      </div>
+    </nav>
+
+    <header class="hero" id="about">
+      <div class="container hero-grid">
+        <div class="hero-copy fade-in">
+          <div class="eyebrow">A calm place to check in</div>
+          <h1>You're not alone. Talk to MindMate.</h1>
+          <p>
+            MindMate offers AI-powered emotional support for students, helping you reflect on your feelings,
+            receive empathetic responses, and find a steadier next step whenever life feels heavy.
+          </p>
+          <div class="hero-actions">
+            <a class="button" href="/login">Start Chatting</a>
+            <span class="secondary-note">Private, supportive, and available anytime.</span>
+          </div>
+        </div>
+
+        <div class="hero-visual fade-in delay-1" aria-hidden="true">
+          <div class="chat-orbit"></div>
+          <div class="floating-emoji one">🌿</div>
+          <div class="floating-emoji two">💜</div>
+          <div class="phone-card">
+            <div class="phone-top"></div>
+            <div class="bubble user">I feel overwhelmed today.</div>
+            <div class="bubble bot">I hear you. Let's slow down and take this one feeling at a time.</div>
+            <div class="bubble user">That would help.</div>
+            <div class="mood-row">
+              <span class="mood">🧘</span>
+              <span class="mood">🌱</span>
+              <span class="mood">✨</span>
+              <span class="mood">🤍</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="features" id="features">
+      <div class="container">
+        <div class="section-heading fade-in">
+          <h2>Support that feels personal.</h2>
+          <p>MindMate combines emotion-aware AI with thoughtful privacy-first features for everyday mental wellness check-ins.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card fade-in delay-1">
+            <div class="feature-icon">🧠</div>
+            <h3>Emotion Detection</h3>
+            <p>Understands emotional cues in your messages to respond with more care and context.</p>
+          </article>
+          <article class="feature-card fade-in delay-2">
+            <div class="feature-icon">💬</div>
+            <h3>Empathetic Responses</h3>
+            <p>Offers gentle, compassionate replies that help you pause, reflect, and feel heard.</p>
+          </article>
+          <article class="feature-card fade-in delay-3">
+            <div class="feature-icon">🔒</div>
+            <h3>End-to-End Encrypted</h3>
+            <p>Designed for private conversations with encryption planned for secure personal support.</p>
+          </article>
+          <article class="feature-card fade-in delay-3">
+            <div class="feature-icon">🧩</div>
+            <h3>Remembers You</h3>
+            <p>Builds continuity over time so your support can feel more familiar and grounded.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="how-it-works" id="how-it-works">
+      <div class="container">
+        <div class="section-heading fade-in">
+          <h2>How it works.</h2>
+          <p>Start with a quick check-in, then let MindMate help you name what is going on and move through it gently.</p>
+        </div>
+        <div class="steps-wrap">
+          <article class="step-card fade-in delay-1">
+            <div class="step-number">1</div>
+            <h3>Sign Up</h3>
+            <p>Create your secure MindMate space and begin your personal wellness journey.</p>
+            <span class="step-arrow">→</span>
+          </article>
+          <article class="step-card fade-in delay-2">
+            <div class="step-number">2</div>
+            <h3>Share How You Feel</h3>
+            <p>Type naturally about your day, your mood, or whatever has been on your mind.</p>
+            <span class="step-arrow">→</span>
+          </article>
+          <article class="step-card fade-in delay-3">
+            <div class="step-number">3</div>
+            <h3>Get Compassionate Support</h3>
+            <p>Receive emotion-aware responses, grounding suggestions, and supportive next steps.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="disclaimer" aria-label="Important disclaimer">
+      <div class="container">
+        <div class="disclaimer-banner fade-in">
+          ⚠️ MindMate is not a replacement for professional mental health care. If you're in crisis, please contact a licensed professional.
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="container footer-inner">
+        <span>Built with ❤️ by Pranshu Patel</span>
+        <a href="https://github.com/Pranshu1626/mental_health_companion_bot" target="_blank" rel="noreferrer">GitHub</a>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
