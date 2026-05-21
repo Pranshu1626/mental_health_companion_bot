@@ -1,4 +1,4 @@
-# Mental Health Companion Chatbot (Breathe)
+# Mental Health Companion Chatbot (MindMate)
 
 An AI-powered mental health companion chatbot that:
 - **Detects emotion** from a user’s text message (ML model)
