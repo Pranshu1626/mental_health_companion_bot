@@ -1,79 +1,76 @@
-# Mental Health Companion Chatbot (MindMate)
+# MindMate — Mental Health Companion Chatbot
 
-An AI-powered mental health companion chatbot that:
-- **Detects emotion** from a user’s text message (ML model)
-- Responds with an **empathetic, supportive reply**
-- Optionally returns **wellness recommendations** (video/image suggestions) for certain emotions/intents
-- Includes a clean **web chat UI** served by a **FastAPI** backend
+MindMate is a lightweight mental-health companion chatbot that:
+- **Detects emotion** from user text (local ML model)
+- Generates a **supportive, friend-like response** (LLM via OpenRouter)
+- Optionally provides **wellness recommendations** (videos/images)
+- Ships with a **web UI** (landing + login + chat) served by a **FastAPI** backend
+- Can optionally **store chat history** in **Supabase**
 
-> ⚠️ This project is for supportive conversation and educational purposes only. It is **not** a replacement for professional mental health care.
+> Important: This project is for supportive conversation and educational purposes only.  
+> It is **not** medical advice and is **not a substitute** for professional mental health care.
 
 ---
 
 ## Demo (Local)
 
-1. Start the backend
-2. Open the app in your browser at: `http://127.0.0.1:8000`
-3. Type a message → the API returns:
-   - `emotion`
-   - `reply`
-   - optional `video` + `image` recommendations
+1. Start the server (instructions below)
+2. Open in your browser:
+   - Landing page: `http://127.0.0.1:8000/`
+   - Chat UI: `http://127.0.0.1:8000/chat`
+
+The chat UI calls the API and returns:
+- `emotion`
+- `reply`
+- optional `video` + `image` recommendations
 
 ---
 
 ## Features
 
-- Emotion classification from text (scikit-learn pipeline)
-- FastAPI backend with a `/api/chat` endpoint
-- Single-page chat UI (HTML/CSS/JS) served from FastAPI
-- Optional recommendations for **sadness/anxiety** or “recommend/watch/help me calm…” intents
-- Environment variable support via `python-dotenv`
-- Docker support for easy deployment
+- Emotion classification from text (scikit-learn model loaded from `models/emotion_model.joblib`)
+- FastAPI backend API:
+  - `POST /api/chat` (and `POST /chat`) — main chat endpoint
+  - `GET /api/history/{user_id}` — fetch stored history (Supabase)
+  - `DELETE /api/history/{user_id}` — delete stored history (Supabase)
+  - `POST /api/user/public-key` — store public key (Supabase; for optional encrypted workflows)
+- Web UI served from FastAPI (`app/static/landing.html`, `login.html`, `index.html`)
+- Dockerfile included for containerized deployment
 
 ---
 
 ## Tech Stack
 
 **Frontend**
-- HTML, CSS, JavaScript (single page UI)
+- HTML / CSS / JavaScript (static pages served by FastAPI)
 
 **Backend**
-- FastAPI
-- Uvicorn
-- CORS enabled (currently `allow_origins=["*"]`)
+- FastAPI + Uvicorn
 
-**Machine Learning**
-- Python
-- scikit-learn
-- TF‑IDF Vectorizer + Logistic Regression (typical setup for text emotion classification)
-- NLTK
-- joblib
+**ML / NLP**
+- scikit-learn, TF‑IDF-style text pipeline (trained offline)
+- NLTK, joblib
 
-**Utilities**
-- pandas, numpy
-- Jupyter Notebook (experiments/training)
+**LLM**
+- OpenRouter (OpenAI-compatible SDK) using `OPENROUTER_API_KEY`
+
+**Database (optional)**
+- Supabase (`SUPABASE_URL`, `SUPABASE_KEY`)
 
 ---
 
-## API Endpoints
+## Architecture (High Level)
 
-- `GET /api/health` → simple health check
-- `POST /api/chat` → main chat endpoint
-
-Example request:
-```json
-{ "message": "I feel stressed and overwhelmed lately." }
-```
-
-Example response (shape):
-```json
-{
-  "emotion": "anxiety",
-  "reply": "…empathetic reply…",
-  "video": "…optional…",
-  "image": "…optional…"
-}
-```
+1. User types in the web chat UI
+2. UI calls `POST /api/chat` with:
+   - `message`
+   - optional `conversation_history` (last messages)
+   - optional `user_id` (if you want Supabase persistence)
+3. Backend:
+   - predicts emotion via `src/predict.py`
+   - generates a response via `src/llm_service.py`
+   - optionally attaches a recommended video/image via `src/recommendations.py`
+   - optionally writes messages to Supabase if configured
 
 ---
 
@@ -82,29 +79,26 @@ Example response (shape):
 ```text
 mental_health_companion_bot/
 ├── app/
-│   ├── main.py                 # FastAPI app + routes
-│   └── static/
-│       └── index.html          # Chat UI
+│   ├── main.py                  # FastAPI app + API routes + serving UI pages
+│   └── static/                  # landing/login/chat UI + assets
 ├── src/
-│   ├── __init__.py
-│   ├── prepare_data.py
-│   ├── train.py
-│   ├── predict.py
-│   ├── reply_engine.py
-│   ├── recommendations.py
-│   ├── llm_service.py
-│   └── utils.py
-├── data/
-│   ├── raw/
-│   └── processed/
+│   ├── predict.py               # emotion prediction (keywords + model)
+│   ├── llm_service.py           # LLM response generation via OpenRouter
+│   ├── reply_engine.py          # glue layer for generating final reply
+│   ├── recommendations.py       # optional video/image suggestions
+│   ├── prepare_data.py          # dataset preprocessing (optional)
+│   ├── train.py                 # model training (optional)
+│   └── utils.py                 # text cleaning utilities
 ├── models/
 │   └── emotion_model.joblib
 ├── notebooks/
 │   └── emotion_model.ipynb
+├── data/
+│   ├── raw/
+│   └── processed/
 ├── requirements.txt
 └── Dockerfile
 ```
-
 
 ---
 
@@ -116,54 +110,45 @@ git clone https://github.com/Pranshu1626/mental_health_companion_bot.git
 cd mental_health_companion_bot
 ```
 
-### 2) Install dependencies
+### 2) Create a virtual environment (recommended)
+```bash
+python -m venv .venv
+# macOS/Linux
+source .venv/bin/activate
+# Windows (PowerShell)
+.venv\Scripts\Activate.ps1
+```
+
+### 3) Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3) (Optional) Environment variables
-Your project loads environment variables using `python-dotenv`, so you can create a `.env` file if needed (for example for OpenAI usage in `src/llm_service.py`).
+### 4) Configure environment variables (optional but recommended)
 
-Example:
+Create a `.env` file in the repo root:
+
 ```bash
-# .env
-OPENAI_API_KEY=your_key_here
+# Required for LLM replies (OpenRouter)
+OPENROUTER_API_KEY=your_openrouter_key
+
+# Optional: enable Supabase history + public-key endpoints
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_service_or_anon_key
 ```
 
-### 4) Run the app
+Notes:
+- If Supabase vars are not set, the app still runs, but history storage is disabled.
+- `load_dotenv()` is called inside `app/main.py`, so `.env` is loaded automatically.
+
+### 5) Run
 ```bash
 uvicorn app.main:app --reload
 ```
 
 Open:
-```text
-http://127.0.0.1:8000
-```
-
----
-
-## Data + Training (Optional / If you want to retrain)
-
-### Data preparation
-Put the dataset files inside:
-```text
-data/raw/
-```
-
-Then run:
-```bash
-python -m src.prepare_data
-```
-
-### Train the model
-```bash
-python -m src.train
-```
-
-The trained model is expected to be saved as:
-```text
-models/emotion_model.joblib
-```
+- `http://127.0.0.1:8000/` (landing)
+- `http://127.0.0.1:8000/chat` (chat UI)
 
 ---
 
@@ -171,50 +156,73 @@ models/emotion_model.joblib
 
 Build:
 ```bash
-docker build -t mental-health-bot .
+docker build -t mindmate .
 ```
 
 Run:
 ```bash
-docker run -p 8000:8000 mental-health-bot
+docker run --rm -p 8000:8000 \
+  -e OPENROUTER_API_KEY="your_key" \
+  -e SUPABASE_URL="your_url" \
+  -e SUPABASE_KEY="your_key" \
+  mindmate
 ```
 
 Open:
 ```text
-http://127.0.0.1:8000
+http://127.0.0.1:8000/
 ```
 
 ---
 
-## How It Works (High Level)
+## API Quick Reference
 
-1. User types a message in the web UI
-2. UI calls `POST /api/chat`
-3. Backend:
-   - predicts emotion via `src.predict`
-   - generates a supportive reply via `src.reply_engine`
-   - optionally attaches recommendations via `src.recommendations`
-4. UI displays the bot response
+- `GET /api/health` → API health check
+- `POST /api/chat` → main chat endpoint
+
+Example request:
+```json
+{
+  "message": "I feel stressed and overwhelmed lately.",
+  "user_id": "optional-user-id",
+  "conversation_history": []
+}
+```
+
+Example response (shape):
+```json
+{
+  "emotion": "anxiety",
+  "reply": "…supportive reply…",
+  "video": { "title": "…", "url": "…" },
+  "image": "https://…",
+  "encrypted": false
+}
+```
 
 ---
 
-## Future Improvements
+## Safety, Privacy, and Disclaimer
 
-- Upgrade emotion model to a transformer (e.g., DistilBERT)
-- Conversation memory + personalization
-- Crisis/self-harm risk detection + safe escalation flow
-- Stronger safety guardrails and refusal handling
-- RAG-based coping strategies and curated resources
+- This is a **support tool**, not therapy.
+- Do **not** use it for emergency situations.
+- If you plan to store conversations (Supabase), treat messages as **sensitive data**:
+  - restrict database access
+  - avoid logging raw user text in production
+  - consider encryption-at-rest + secure key handling
+- Consider adding a dedicated **crisis flow** (self-harm detection + local emergency resources).
 
 ---
 
-## Disclaimer
+## Roadmap Ideas (to help it stand out)
 
-This chatbot is **not a replacement for professional mental health support**.
-If you or someone you know is in immediate danger or considering self-harm, contact local emergency services or a trusted professional right away.
+- Add a hosted demo (Render/Fly.io) + screenshots/GIF
+- Add crisis-safe guardrails + explicit “what the bot will do” policy
+- Add tests (API + model) and GitHub Actions CI
+- Replace keyword overrides with a calibrated model thresholding approach
+- Add a curated coping-strategies knowledge base (RAG) with citations
 
 ---
 
 ## Author
-
-**Pranshu Patel**
+Pranshu Patel
