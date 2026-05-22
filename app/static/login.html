@@ -11,10 +11,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
         rel="stylesheet" />
 
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem("mindmate_theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+        })();
+    </script>
+
     <style>
         .field.hidden {
             display: none;
         }
+
         :root {
             --lavender: #7C6FCD;
             --lavender-dark: #6155ad;
@@ -28,6 +36,46 @@
             --danger: #b42318;
             --success: #18794e;
             --shadow: 0 22px 60px rgba(72, 67, 117, 0.16);
+        }
+
+        html[data-theme="dark"] {
+            --white: #101014;
+            --grey: #181820;
+            --text: #f5f5f7;
+            --muted: #b8b8c8;
+            --border: #343447;
+            --lavender-soft: #26223d;
+            --mint-soft: #172923;
+            --shadow: 0 22px 60px rgba(0, 0, 0, 0.38);
+        }
+
+        html[data-theme="dark"] body {
+            background:
+                radial-gradient(circle at top left, rgba(168, 216, 200, 0.12), transparent 32rem),
+                radial-gradient(circle at top right, rgba(124, 111, 205, 0.16), transparent 34rem),
+                #0b0b10;
+        }
+
+        html[data-theme="dark"] .navbar,
+        html[data-theme="dark"] .auth-shell,
+        html[data-theme="dark"] .feature-card,
+        html[data-theme="dark"] .phone-card,
+        html[data-theme="dark"] input {
+            background: var(--white);
+        }
+
+        html[data-theme="dark"] .step-card {
+            background: linear-gradient(145deg, #101014, #172923);
+        }
+
+        html[data-theme="dark"] .disclaimer {
+            background: linear-gradient(to bottom, #0b0b10, #181820);
+        }
+
+        html[data-theme="dark"] .disclaimer-banner {
+            background: #2d2814;
+            border-color: #75622a;
+            color: #f8e7a1;
         }
 
         * {
@@ -323,6 +371,27 @@
             text-decoration: none;
         }
 
+        .theme-toggle {
+            min-height: 42px;
+            padding: 0 14px;
+            border: 1px solid rgba(124, 111, 205, 0.22);
+            border-radius: 999px;
+            background: var(--white);
+            color: var(--text);
+            font: inherit;
+            font-size: 0.9rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 10px 24px rgba(72, 67, 117, 0.1);
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-1px);
+        }
+
         @media (max-width: 820px) {
             body {
                 padding: 0;
@@ -367,7 +436,13 @@
             </div>
         </section>
 
+        
         <section class="form-panel" aria-label="Authentication form">
+            <div class="panel-header"><button class="theme-toggle" id="themeToggle" type="button"
+                    style="align-self: flex-end; margin-bottom: 18px;">
+                    <span id="themeIcon">☀️</span>
+                    <span id="themeText">Day</span>
+                </button></div>
             <div class="panel-header">
                 <h2 id="formTitle">Sign in</h2>
                 <p id="formSubtitle">Use your MindMate account to continue.</p>
@@ -403,7 +478,7 @@
                 <div class="field">
                     <label for="password">Password</label>
                     <input id="password" type="password" autocomplete="current-password"
-                        placeholder="Minimum 6 characters" required />
+                        placeholder="Minimum 8 characters" required />
                 </div>
 
                 <button class="submit-button" id="submitButton" type="submit">Login</button>
@@ -433,8 +508,33 @@
         const statusMessage = document.getElementById("statusMessage");
         const googleLogin = document.getElementById("googleLogin");
         const githubLogin = document.getElementById("githubLogin");
+        const MINDMATE_INACTIVITY_LIMIT = 24 * 60 * 60 * 1000; // 24 hours
+        const MINDMATE_LAST_ACTIVITY_KEY = "mindmate_last_activity";
+        
+        const themeToggle = document.getElementById("themeToggle");
+        const themeIcon = document.getElementById("themeIcon");
+        const themeText = document.getElementById("themeText");
 
         let mode = "login";
+
+        function updateMindMateActivity() {
+            localStorage.setItem(MINDMATE_LAST_ACTIVITY_KEY, Date.now().toString());
+        }
+
+        function isMindMateSessionInactive() {
+            const lastActivity = Number(localStorage.getItem(MINDMATE_LAST_ACTIVITY_KEY));
+
+            if (!lastActivity) {
+                updateMindMateActivity();
+                return false;
+            }
+
+            return Date.now() - lastActivity > MINDMATE_INACTIVITY_LIMIT;
+        }
+
+        ["click", "keydown", "mousemove", "scroll", "touchstart"].forEach((eventName) => {
+            window.addEventListener(eventName, updateMindMateActivity, { passive: true });
+        });
 
         function setMode(nextMode) {
             mode = nextMode;
@@ -484,12 +584,13 @@
             if (user?.id) {
                 localStorage.setItem("mindmate_user_id", user.id);
             }
-
+            updateMindMateActivity();
             window.location.href = "/chat";
         }
 
         loginTab.addEventListener("click", () => setMode("login"));
         signupTab.addEventListener("click", () => setMode("signup"));
+
 
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
             auth: {
@@ -576,11 +677,51 @@
 
         supabaseClient.auth.onAuthStateChange((event, session) => {
             if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED") && session?.user) {
+                updateMindMateActivity();
                 saveUserAndRedirect(session.user);
             }
         });
+        async function checkExistingSession() {
+            const { data } = await supabaseClient.auth.getSession();
+
+            if (!data.session?.user) {
+                return;
+            }
+
+            if (isMindMateSessionInactive()) {
+                await supabaseClient.auth.signOut();
+                localStorage.removeItem("mindmate_user_id");
+                localStorage.removeItem("mindmate_last_activity");
+                showMessage("Your session expired after 24 hours of inactivity. Please log in again.", "error");
+                return;
+            }
+
+            saveUserAndRedirect(data.session.user);
+        }
+
 
         setMode("login");
+        checkExistingSession();
+
+        function applyMindMateTheme(theme) {
+            document.documentElement.setAttribute("data-theme", theme);
+            localStorage.setItem("mindmate_theme", theme);
+
+            if (themeIcon && themeText) {
+                themeIcon.textContent = theme === "dark" ? "🌙" : "☀️";
+                themeText.textContent = theme === "dark" ? "Night" : "Day";
+            }
+        }
+
+        const currentTheme = localStorage.getItem("mindmate_theme") || "light";
+        applyMindMateTheme(currentTheme);
+
+        if (themeToggle) {
+            themeToggle.addEventListener("click", () => {
+                const activeTheme = document.documentElement.getAttribute("data-theme");
+                applyMindMateTheme(activeTheme === "dark" ? "light" : "dark");
+            });
+        }
     </script>
 </body>
 

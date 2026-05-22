@@ -337,11 +337,29 @@
       max-width: 260px;
       margin: 0 auto;
     }
+
+    .logout-button {
+      margin-left: auto;
+      width: auto;
+      height: 36px;
+      padding: 0 14px;
+      border: 1px solid rgba(196, 181, 253, 0.34);
+      border-radius: var(--radius-full);
+      background: rgba(167, 139, 250, 0.12);
+      color: #ddd6fe;
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .logout-button:hover {
+      background: rgba(167, 139, 250, 0.2);
+    }
   </style>
 </head>
 
 <body>
-
   <div class="chat-container">
     <div class="header">
       <div class="header-avatar">
@@ -353,6 +371,7 @@
         <div class="header-title">Mind Mate</div>
         <div class="header-subtitle">I'm here to listen</div>
       </div>
+      <button id="logoutBtn" class="logout-button" type="button">Logout</button>
     </div>
 
     <div class="messages" id="messages">
@@ -382,10 +401,61 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const messages = document.getElementById("messages");
     const input = document.getElementById("input");
     const sendBtn = document.getElementById("send");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    const MINDMATE_INACTIVITY_LIMIT = 24 * 60 * 60 * 1000; // 24 hours
+    const MINDMATE_LAST_ACTIVITY_KEY = "mindmate_last_activity";
+
+    const SUPABASE_URL = "https://tjsrkpnwpvtmnbvgqrbg.supabase.co";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY_HERE";
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
+    });
+
+    function updateMindMateActivity() {
+      localStorage.setItem(MINDMATE_LAST_ACTIVITY_KEY, Date.now().toString());
+    }
+
+    function isMindMateSessionInactive() {
+      const lastActivity = Number(localStorage.getItem(MINDMATE_LAST_ACTIVITY_KEY));
+
+      if (!lastActivity) {
+        updateMindMateActivity();
+        return false;
+      }
+
+      return Date.now() - lastActivity > MINDMATE_INACTIVITY_LIMIT;
+    }
+
+    async function protectChatPage() {
+      const { data } = await supabaseClient.auth.getSession();
+
+      if (!data.session?.user || isMindMateSessionInactive()) {
+        await supabaseClient.auth.signOut();
+
+        localStorage.removeItem("mindmate_user_id");
+        localStorage.removeItem("mindmate_last_activity");
+        localStorage.removeItem("mindmate_private_key");
+        localStorage.removeItem("mindmate_public_key");
+
+        window.location.href = "/login";
+      }
+    }
+    ["click", "keydown", "mousemove", "scroll", "touchstart"].forEach((eventName) => {
+      window.addEventListener(eventName, updateMindMateActivity, { passive: true });
+    });
+
+    protectChatPage();
 
     // Clear welcome message on first user input
     let welcomeCleared = false;
@@ -432,6 +502,8 @@
       if (typing) typing.remove();
     }
     async function sendMessage() {
+      updateMindMateActivity();
+
       const text = input.value.trim();
       if (!text) return;
 
@@ -482,6 +554,20 @@
     });
 
     sendBtn.addEventListener("click", sendMessage);
+
+    async function logoutUser() {
+      localStorage.removeItem("mindmate_user_id");
+      localStorage.removeItem("mindmate_last_activity");
+      localStorage.removeItem("mindmate_private_key");
+      localStorage.removeItem("mindmate_public_key");
+
+      await supabaseClient.auth.signOut();
+
+      window.location.href = "/";
+    }
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", logoutUser);
+    }
     input.focus();
   </script>
 
