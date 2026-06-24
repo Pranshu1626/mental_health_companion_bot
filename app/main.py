@@ -131,7 +131,7 @@ def save_message_to_supabase(
 
 @app.get("/health")
 def health_check():
-    return {"status": "ok"}
+    return {"status": "Healthy"}
 
 @app.get("/api/health")
 def health():
