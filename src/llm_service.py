@@ -2,11 +2,10 @@ import os
 from openai import OpenAI
 
 client = OpenAI(
-    api_key=os.getenv("OPENROUTER_API_KEY"),
-    base_url="https://openrouter.ai/api/v1"
-)
+    api_key=os.getenv("GROQ_API_KEY"),
+    base_url="https://api.groq.com/openai/v1")
 
-MODEL = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"
+MODEL = "groq/compound"
 
 def generate_llm_reply(message: str, emotion: str) -> str:
     prompt = f"""

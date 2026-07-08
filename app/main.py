@@ -18,11 +18,12 @@ from src.predict import predict_emotion
 from src.recommendations import get_recommendations
 
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+SUPABASE_URL = os.getenv("https://tjsrkpnwpvtmnbvgqrbg.supabase.co")
+SUPABASE_KEY = os.getenv("sb_publishable_U_-1_asPv2nGT5JeXl-NtA_u-iGsGMw")
 
 supabase: Optional[Client] = None
 if SUPABASE_URL and SUPABASE_KEY:
+    
     supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 app = FastAPI()
