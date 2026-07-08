@@ -5,7 +5,7 @@ client = OpenAI(
     api_key=os.getenv("GROQ_API_KEY"),
     base_url="https://api.groq.com/openai/v1")
 
-MODEL = "groq/compound"
+MODEL = "qwen/qwen3.6-27b-chat"
 
 def generate_llm_reply(message: str, emotion: str) -> str:
     prompt = f"""
