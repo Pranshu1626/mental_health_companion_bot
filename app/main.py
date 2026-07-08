@@ -18,8 +18,8 @@ from src.predict import predict_emotion
 from src.recommendations import get_recommendations
 
 
-SUPABASE_URL = os.getenv("https://tjsrkpnwpvtmnbvgqrbg.supabase.co")
-SUPABASE_KEY = os.getenv("sb_publishable_U_-1_asPv2nGT5JeXl-NtA_u-iGsGMw")
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 supabase: Optional[Client] = None
 if SUPABASE_URL and SUPABASE_KEY:
@@ -63,7 +63,6 @@ def get_supabase_client() -> Client:
             status_code=500,
             detail="Supabase is not configured. Set SUPABASE_URL and SUPABASE_KEY.",
         )
-
     return supabase
 
 
