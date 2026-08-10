@@ -1,10 +1,9 @@
 # MindMate — Mental Health Companion Chatbot
 
-MindMate is an AI-powered **mental health companion chatbot** designed to provide empathetic, non-judgmental, and supportive conversations. It combines local emotion detection with LLM-generated responses and optional wellness recommendations in a clean web interface.
+MindMate is a FastAPI-based, AI-powered mental health companion chatbot that detects emotion from user messages with a local model and generates short, empathetic replies using a connected LLM. It is intended as a learning/prototype system and not a replacement for professional care.
 
-> ⚠️ **Important Disclaimer**
-> This project is for supportive conversation and educational purposes only.
-> It is **not** medical advice, **not** a diagnostic tool, and **not** a substitute for licensed mental health care.
+> ⚠️ Important Disclaimer  
+> This project provides supportive conversational responses for educational and prototyping purposes only. It is **not** medical advice, **not** a diagnostic tool, and **not** a substitute for licensed mental health care. If someone is in immediate danger, contact local emergency services.
 
 ---
 
@@ -37,76 +36,65 @@ MindMate is an AI-powered **mental health companion chatbot** designed to provid
 
 MindMate aims to make first-line emotional support more accessible by:
 
-- detecting emotion from user text using a local ML model,
-- generating emotionally aware responses through an LLM,
-- optionally suggesting supportive wellness content,
-- serving everything through a lightweight FastAPI web application.
-
-This repository is ideal for learning and building in areas like:
-
-- applied NLP,
-- emotion-aware chatbot systems,
-- FastAPI-based product prototypes,
-- safe AI interaction design.
+- detecting emotion from user text using a local ML model (scikit-learn + joblib),
+- generating emotionally aware replies through an LLM API,
+- optionally suggesting wellness media, and
+- serving everything through a lightweight FastAPI web application with a static HTML/CSS/JS UI.
 
 ---
 
 ## Key Features
 
-- **Emotion Detection** from user messages (scikit-learn model).
-- **Empathetic Chat Responses** generated via OpenRouter-compatible LLM API.
-- **Optional Recommendations** such as videos/images for wellness support.
-- **Web Experience** with landing page, login flow, and chat interface.
-- **REST API** for chat, health checks, and optional history management.
-- **Optional Supabase Integration** for storing conversation history and keys.
-- **Docker Support** for consistent deployment environments.
+- Emotion detection from user messages (keyword heuristics + scikit-learn model).
+- Empathetic chat replies via an LLM client (the repository's LLM client is currently configured to use a Groq/OpenAI-compatible endpoint).
+- Optional video/image recommendations for certain emotions.
+- Web UI: landing page, login flow, and chat interface (served from `app/static`).
+- Optional Supabase integration for storing chat history and public keys.
+- Docker support for reproducible deployment.
 
 ---
 
 ## Live Demo
 
-- **Homepage**: https://mental-health-companion-bot.onrender.com
+- Homepage: https://mental-health-companion-bot.onrender.com
 
-For local development, once running:
-
-- Landing page: `http://127.0.0.1:8000/`
-- Chat UI: `http://127.0.0.1:8000/chat`
+Local UIs (after running):
+- Landing page: http://127.0.0.1:8000/
+- Chat UI: http://127.0.0.1:8000/chat
 
 ---
 
 ## Tech Stack
 
 ### Frontend
-- HTML, CSS, JavaScript (served as static files)
+- HTML, CSS, JavaScript (served as static files from `app/static`)
 
 ### Backend
-- FastAPI
-- Uvicorn
+- FastAPI + Uvicorn
 
 ### ML / NLP
-- scikit-learn
-- NLTK
-- joblib
+- scikit-learn, joblib, nltk, pandas, numpy
 
 ### LLM
-- OpenRouter-compatible API (`OPENROUTER_API_KEY`)
+- openai-compatible client usage (configured in `src/llm_service.py`); environment key expected by the current code: `GROQ_API_KEY`
 
 ### Optional Data Layer
-- Supabase (`SUPABASE_URL`, `SUPABASE_KEY`)
+- Supabase (requires `SUPABASE_URL` and `SUPABASE_KEY`)
 
 ### DevOps
-- Docker
+- Dockerfile included
 
 ---
 
 ## How It Works
 
-1. User sends a message via the chat interface.
-2. Backend receives it through `POST /api/chat` (or `POST /chat`).
-3. Emotion is predicted in `src/predict.py`.
-4. Context-aware supportive reply is generated in `src/llm_service.py` and composed in `src/reply_engine.py`.
-5. Optional media recommendations are selected via `src/recommendations.py`.
-6. If configured, conversation data is persisted to Supabase.
+1. User sends a message via the chat UI.
+2. The backend (POST /api/chat) calls `src/predict.predict_emotion`.
+   - A small set of keyword checks short-circuit to "anxiety" or "sadness".
+   - Otherwise the pre-trained scikit-learn model in `models/emotion_model.joblib` is used.
+3. `src/reply_engine.generate_final_reply` calls `src/llm_service.generate_llm_reply` to build a supportive reply.
+4. `src/recommendations.get_recommendations` may return video/image suggestions for certain emotions or user intents.
+5. If Supabase is configured, messages are persisted in the `messages` table.
 
 ---
 
@@ -115,20 +103,20 @@ For local development, once running:
 ```text
 mental_health_companion_bot/
 ├── app/
-│   ├── main.py                  # FastAPI app + routes + UI serving
+│   ├── main.py                  # FastAPI app + routes + static UI serving
 │   └── static/                  # landing/login/chat UI + assets
 ├── src/
-│   ├── predict.py               # emotion prediction logic
-│   ├── llm_service.py           # LLM response generation
+│   ├── predict.py               # emotion prediction logic (keywords + model)
+│   ├── llm_service.py           # LLM request logic & prompt
 │   ├── reply_engine.py          # response orchestration
 │   ├── recommendations.py       # media recommendations
 │   ├── prepare_data.py          # preprocessing utilities
 │   ├── train.py                 # model training script
 │   └── utils.py                 # text cleaning helpers
 ├── models/
-│   └── emotion_model.joblib
+│   └── emotion_model.joblib     # trained emotion model (required)
 ├── notebooks/
-│   └── emotion_model.ipynb
+│   └── emotion_model.ipynb      # experimentation/training notebook
 ├── data/
 │   ├── raw/
 │   └── processed/
@@ -166,22 +154,22 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+Note: requirements.txt currently includes `python-dotenv` twice — removing the duplicate is safe.
+
 ### 4) Configure Environment Variables
 
-Create a `.env` file in the project root:
+Create a `.env` file in the project root. The code expects:
 
 ```bash
-# Required for LLM responses
-OPENROUTER_API_KEY=your_openrouter_key
+# Required for LLM responses (current code uses GROQ/OpenAI-compatible endpoint)
+GROQ_API_KEY=your_api_key_here
 
 # Optional (enables chat history + public-key endpoints)
 SUPABASE_URL=your_supabase_url
 SUPABASE_KEY=your_supabase_key
 ```
 
-Notes:
-- If Supabase variables are missing, app features depending on Supabase are disabled.
-- `.env` is loaded in the FastAPI app startup path.
+If you adapt the LLM client in `src/llm_service.py` to another provider (e.g., OpenRouter), update the environment variable name and client configuration accordingly.
 
 ### 5) Run the Application
 
@@ -189,9 +177,9 @@ Notes:
 uvicorn app.main:app --reload
 ```
 
-Then open:
-- `http://127.0.0.1:8000/`
-- `http://127.0.0.1:8000/chat`
+Open:
+- http://127.0.0.1:8000/
+- http://127.0.0.1:8000/chat
 
 ---
 
@@ -207,26 +195,27 @@ docker build -t mindmate .
 
 ```bash
 docker run --rm -p 8000:8000 \
-  -e OPENROUTER_API_KEY="your_key" \
+  -e GROQ_API_KEY="your_key" \
   -e SUPABASE_URL="your_url" \
   -e SUPABASE_KEY="your_key" \
   mindmate
 ```
 
-Open: `http://127.0.0.1:8000/`
+Open http://127.0.0.1:8000/
 
 ---
 
 ## API Reference
 
-### Health Check
+### Health Checks
+- `GET /health`
 - `GET /api/health`
 
 ### Chat Endpoints
 - `POST /api/chat`
 - `POST /chat`
 
-#### Example Request
+Example request body:
 
 ```json
 {
@@ -236,7 +225,7 @@ Open: `http://127.0.0.1:8000/`
 }
 ```
 
-#### Example Response (shape)
+Shape of response:
 
 ```json
 {
@@ -248,7 +237,7 @@ Open: `http://127.0.0.1:8000/`
 }
 ```
 
-### Optional Supabase-Backed Endpoints
+Optional Supabase-backed endpoints (require SUPABASE_* env vars):
 - `GET /api/history/{user_id}`
 - `DELETE /api/history/{user_id}`
 - `POST /api/user/public-key`
@@ -257,67 +246,62 @@ Open: `http://127.0.0.1:8000/`
 
 ## Security & Privacy Notes
 
-If you store user conversation data:
-
-- Treat all chat messages as **sensitive data**.
-- Limit database access with strict policies.
-- Avoid storing or logging raw personal text when possible.
-- Consider encryption at rest and secure key management.
-- Add rate limiting and abuse protections for public deployments.
-
-For safety-critical use, consider adding a dedicated crisis escalation flow and localized emergency resources.
+- Treat chat messages as sensitive data.
+- Limit database access and use strict row-level policies when enabling persistence.
+- Avoid storing raw personal PII; consider encryption at rest for stored messages.
+- Add rate-limiting, abuse protections, and monitoring for public deployments.
+- For safety-critical applications, implement a crisis escalation flow and localized emergency resources.
 
 ---
 
 ## Limitations
 
-- The system is not a replacement for clinical evaluation.
-- Model quality depends on training data coverage and prompt quality.
-- Emotion predictions can be imperfect and context-sensitive.
-- External model/API availability can affect chatbot response quality.
+- Not a replacement for clinical evaluation.
+- Emotion detection uses a small keyword list and a simple scikit-learn model — accuracy will vary.
+- LLM responses depend on external API availability and model behavior.
+- No explicit QA, automated tests, or CI pipeline in the repo yet.
 
 ---
 
 ## Contributing
 
-Contributions are welcome.
-
-1. Fork this repository.
+Contributions welcome:
+1. Fork the repo.
 2. Create a feature branch.
-3. Commit your changes.
-4. Open a pull request with a clear description.
+3. Commit and push changes.
+4. Open a pull request with tests and a clear description.
 
-Suggested contribution areas:
-- model improvement and calibration,
-- conversation safety and guardrails,
-- test coverage,
-- UI accessibility and UX upgrades,
-- deployment and observability enhancements.
+Suggested areas: model calibration, safety prompts, tests, UI/UX, accessibility, CI.
 
 ---
 
 ## Roadmap
 
-- [ ] Add automated tests (API + inference + safety checks)
-- [ ] Add CI pipeline using GitHub Actions
-- [ ] Improve emotion model calibration and confidence handling
-- [ ] Add explicit crisis-safety workflow and policy prompts
-- [ ] Add retrieval-based coping strategy knowledge base with citations
-- [ ] Add multilingual support
-- [ ] Improve analytics and observability for production deployments
+- Add automated tests (API + inference)
+- Add CI
+- Improve model calibration and confidence handling
+- Add crisis-safety workflow
+- Add retrieval-based knowledge base with citations
+- Multilingual support and analytics
 
 ---
 
 ## License
 
-No license file is currently defined in this repository.
+No license file is currently present. If you plan to open-source this project, add a LICENSE file (for example MIT, Apache-2.0, or GPL-3.0).
 
-If you plan to open-source this project for reuse, consider adding a license such as MIT, Apache-2.0, or GPL-3.0.
+---
+
+## Troubleshooting & Notes
+
+- If you see `FileNotFoundError` for `models/emotion_model.joblib`, run `src/train.py` (inspect and adapt) or provide a trained model at `models/emotion_model.joblib`.
+- If LLM calls fail, confirm `GROQ_API_KEY` is set and that `src/llm_service.py` is configured correctly for your provider and endpoint.
+- Duplicate `python-dotenv` in requirements — harmless but tidy to remove.
+- If switching to OpenRouter/OpenAI, update `src/llm_service.py` to use the appropriate client and env variable (`OPENROUTER_API_KEY` or `OPENAI_API_KEY`) and update this README accordingly.
 
 ---
 
 ## Author
 
-**Pranshu Patel**
-
+**Pranshu Patel**  
 GitHub: [@Pranshu1626](https://github.com/Pranshu1626)
