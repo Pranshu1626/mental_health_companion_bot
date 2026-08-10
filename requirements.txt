@@ -8,4 +8,3 @@ uvicorn
 python-dotenv
 openai
 supabase==2.10.0
-python-dotenv
