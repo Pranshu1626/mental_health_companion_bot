@@ -279,13 +279,21 @@
         .oauth-button i {
             font-size: 20px;
         }
-        #googleLogin i {
+
+        .google-icon {
+            color: var(--text);
+        }
+
+        .github-icon {
+            color: var(--text);
+        }
+        /* #googleLogin i {
             color: #ffffff;
         }
 
         #githubLogin i {
             color: #ffffff;
-        }
+        } */
 
         .oauth-button:hover,
         .submit-button:hover {
@@ -472,8 +480,8 @@
             </div>
 
             <div class="oauth-grid">
-                <button class="oauth-button" id="googleLogin" type="button"><i class="fa-brands fa-google"></i> Continue with Google</button>
-                <button class="oauth-button" id="githubLogin" type="button"><i class="fa-brands fa-github"></i> Continue with GitHub</button>
+                <button class="oauth-button" id="googleLogin" type="button"><i class="fa-brands fa-google google-icon"></i> Continue with Google</button>
+                <button class="oauth-button" id="githubLogin" type="button"><i class="fa-brands fa-github github-icon"></i> Continue with GitHub</button>
             </div>
 
             <div class="divider">or use email</div>
