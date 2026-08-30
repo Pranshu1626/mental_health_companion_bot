@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
         rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <script>
         (function () {
@@ -268,6 +269,22 @@
             background: var(--white);
             color: var(--text);
             border: 1px solid var(--border);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .oauth-button i {
+            font-size: 20px;
+        }
+        #googleLogin i {
+            color: #ffffff;
+        }
+
+        #githubLogin i {
+            color: #ffffff;
         }
 
         .oauth-button:hover,
@@ -455,8 +472,8 @@
             </div>
 
             <div class="oauth-grid">
-                <button class="oauth-button" id="googleLogin" type="button">Continue with Google</button>
-                <button class="oauth-button" id="githubLogin" type="button">Continue with GitHub</button>
+                <button class="oauth-button" id="googleLogin" type="button"><i class="fa-brands fa-google"></i> Continue with Google</button>
+                <button class="oauth-button" id="githubLogin" type="button"><i class="fa-brands fa-github"></i> Continue with GitHub</button>
             </div>
 
             <div class="divider">or use email</div>
